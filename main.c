@@ -185,8 +185,9 @@ int show_image(char *filename)
 	unsigned char * image = NULL;
 	unsigned char * alpha = NULL;
 
+	int c, ret;
 	int x_size, y_size, screen_width, screen_height;
-	int x_pan, y_pan, x_offs, y_offs, refresh = 1, c, ret = 1;
+	int x_pan, y_pan, x_offs, y_offs, refresh = 1;
 	int delay = opt_delay, retransform = 1;
 
 	int transform_stretch = opt_stretch, transform_enlarge = opt_enlarge;
@@ -321,6 +322,7 @@ identified:
 			case ' ': case 10: case 13:
 				goto done;
 			case '>': case '.':
+				ret = 1;
 				goto done;
 			case '<': case ',':
 				ret = -1;
@@ -407,25 +409,27 @@ error:
 		free(i.rgb);
 		free(i.alpha);
 	}
-	return(ret);
+	return ret;
 }
 
 void help(char *name)
 {
 	printf("Usage: %s [options] image1 image2 image3 ...\n\n"
 		   "Available options:\n"
-		   " --help	        | -h : Show this help\n"
-		   " --alpha        | -a : Use the alpha channel (if applicable)\n"
-		   " --dontclear    | -c : Do not clear the screen before and after displaying the image\n"
-		   " --donthide     | -u : Do not hide the cursor before and after displaying the image\n"
-		   " --noinfo       | -i : Supress image information\n"
-		   " --stretch      | -f : Strech (using a simple resizing routine) the image to fit onto screen if necessary\n"
-		   " --colorstretch | -k : Strech (using a 'color average' resizing routine) the image to fit onto screen if necessary\n"
-		   " --enlarge      | -e : Enlarge the image to fit the whole screen if necessary\n"
-		   " --ignore-aspect| -r : Ignore the image aspect while resizing\n"
-		   " --delay <d>    | -s <delay> : Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
-		   "Keys:\n"
+		   "  -h, --help          Show this help\n"
+		   "  -a, --alpha         Use the alpha channel (if applicable)\n"
+		   "  -c, --dontclear     Do not clear the screen before and after displaying the image\n"
+		   "  -u, --donthide      Do not hide the cursor before and after displaying the image\n"
+		   "  -i, --noinfo        Supress image information\n"
+		   "  -f, --stretch       Strech (using a simple resizing routine) the image to fit onto screen if necessary\n"
+		   "  -k, --colorstretch  Strech (using a 'color average' resizing routine) the image to fit onto screen if necessary\n"
+		   "  -e, --enlarge       Enlarge the image to fit the whole screen if necessary\n"
+		   "  -r, --ignore-aspect Ignore the image aspect while resizing\n"
+		   "  -s <delay>, --delay <d>  Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
+		   "Input keys:\n"
 		   " r          : Redraw the image\n"
+		   " < or ,     : Previous image\n"
+		   " > or .     : Next image\n"
 		   " a, d, w, x : Pan the image\n"
 		   " f          : Toggle resizing on/off\n"
 		   " k          : Toggle resizing quality\n"
@@ -453,16 +457,16 @@ int main(int argc, char **argv)
 {
 	static struct option long_options[] =
 	{
-		{"help",		no_argument,	0, 'h'},
-		{"noclear", 	no_argument, 	0, 'c'},
-		{"alpha", 		no_argument, 	0, 'a'},
-		{"unhide",  	no_argument, 	0, 'u'},
-		{"noinfo",  	no_argument, 	0, 'i'},
-		{"stretch", 	no_argument, 	0, 'f'},
-		{"colorstrech", no_argument, 	0, 'k'},
-		{"delay", 		required_argument, 0, 's'},
-		{"enlarge",		no_argument,	0, 'e'},
-		{"ignore-aspect", no_argument,	0, 'r'},
+		{"help",          no_argument,  0, 'h'},
+		{"noclear",       no_argument,  0, 'c'},
+		{"alpha",         no_argument,  0, 'a'},
+		{"unhide",        no_argument,  0, 'u'},
+		{"noinfo",        no_argument,  0, 'i'},
+		{"stretch",       no_argument,  0, 'f'},
+		{"colorstrech",   no_argument,  0, 'k'},
+		{"delay",         required_argument, 0, 's'},
+		{"enlarge",       no_argument,  0, 'e'},
+		{"ignore-aspect", no_argument,  0, 'r'},
 		{0, 0, 0, 0}
 	};
 	int c, i;
@@ -471,7 +475,7 @@ int main(int argc, char **argv)
 	{
 		help(argv[0]);
 		fprintf(stderr, "Error: Required argument missing.\n");
-		return(1);
+		return 1;
 	}
 
 	while((c = getopt_long_only(argc, argv, "hcauifks:er", long_options, NULL)) != EOF)
@@ -514,7 +518,7 @@ int main(int argc, char **argv)
 	if(!argv[optind])
 	{
 		fprintf(stderr, "Required argument missing! Consult %s -h.\n", argv[0]);
-		return(1);
+		return 1;
 	}
 
 	signal(SIGHUP, sighandler);
@@ -532,12 +536,12 @@ int main(int argc, char **argv)
 
 	setup_console(1);
 
-	for(i = optind; argv[i]; )
+	i = optind;
+	while(argv[i])
 	{
 		int r = show_image(argv[i]);
-
-		if(!r) break;
-
+		if(r == 0)
+			break;
 		i += r;
 		if(i < optind)
 			i = optind;
