@@ -44,7 +44,7 @@ void blit2FB(int fh, void *fbbuff, unsigned char *alpha,
 	unsigned int xoffs, unsigned int yoffs,
 	int cpp);
 
-void fb_display(unsigned char *rgbbuff, unsigned char * alpha, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs)
+int fb_display(unsigned char *rgbbuff, unsigned char * alpha, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs)
 {
 	struct fb_var_screeninfo var;
 	struct fb_fix_screeninfo fix;
@@ -54,6 +54,8 @@ void fb_display(unsigned char *rgbbuff, unsigned char * alpha, int x_size, int y
 
 	/* get the framebuffer device handle */
 	fh = openFB(NULL);
+	if(fh == -1)
+		return -1;
 
 	/* read current video mode */
 	getVarScreenInfo(fh, &var);
@@ -79,17 +81,21 @@ void fb_display(unsigned char *rgbbuff, unsigned char * alpha, int x_size, int y
 
 	/* close device */
 	closeFB(fh);
+	return 0;
 }
 
-void getCurrentRes(int *x, int *y)
+int getCurrentRes(int *x, int *y)
 {
 	struct fb_var_screeninfo var;
-	int fh = -1;
+	int fh;
 	fh = openFB(NULL);
+	if(fh == -1)
+		return -1;
 	getVarScreenInfo(fh, &var);
 	*x = var.xres;
 	*y = var.yres;
 	closeFB(fh);
+	return 0;
 }
 
 int openFB(const char *name)
@@ -107,7 +113,7 @@ int openFB(const char *name)
 	if((fh = open(name, O_RDWR)) == -1)
 	{
 		fprintf(stderr, "open %s: %s\n", name, strerror(errno));
-		exit(1);
+		return -1;
 	}
 	return fh;
 }

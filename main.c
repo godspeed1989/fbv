@@ -31,14 +31,17 @@ void setup_console(int t)
 
 	if(t)
 	{
+		printf("setup console\n");
 		tcgetattr(0, &old_termios);
 		memcpy(&our_termios, &old_termios, sizeof(struct termios));
 		our_termios.c_lflag &= !(ECHO | ICANON);
 		tcsetattr(0, TCSANOW, &our_termios);
 	}
 	else
+	{
+		printf("restore console\n");
 		tcsetattr(0, TCSANOW, &old_termios);
-
+	}
 }
 
 static inline void do_rotate(struct image *i, int rot)
@@ -186,8 +189,9 @@ int show_image(char *filename)
 	int x_pan, y_pan, x_offs, y_offs, refresh = 1, c, ret = 1;
 	int delay = opt_delay, retransform = 1;
 
-	int transform_stretch = opt_stretch, transform_enlarge = opt_enlarge, transform_cal = (opt_stretch == 2),
-		transform_iaspect = opt_ignore_aspect, transform_rotation = 0;
+	int transform_stretch = opt_stretch, transform_enlarge = opt_enlarge;
+	int transform_cal = (opt_stretch == 2), transform_iaspect = opt_ignore_aspect;
+	int transform_rotation = 0;
 
 	struct image i;
 
@@ -225,13 +229,13 @@ identified:
 	if(!(image = (unsigned char*)malloc(x_size * y_size * 3)))
 	{
 		fprintf(stderr, "%s: Out of memory.\n", filename);
-		goto error_mem;
+		goto error;
 	}
 
 	if(load(filename, image, &alpha, x_size, y_size) != FH_ERROR_OK)
 	{
 		fprintf(stderr, "%s: Image data is corrupt?\n", filename);
-		goto error_mem;
+		goto error;
 	}
 
 	if(!opt_alpha)
@@ -240,7 +244,8 @@ identified:
 		alpha = NULL;
 	}
 
-	getCurrentRes(&screen_width, &screen_height);
+	if(getCurrentRes(&screen_width, &screen_height))
+		goto error;
 	i.do_free = 0;
 	while(1)
 	{
@@ -256,7 +261,6 @@ identified:
 			i.rgb = image;
 			i.alpha = alpha;
 			i.do_free = 0;
-
 
 			if(transform_rotation)
 				do_rotate(&i, transform_rotation);
@@ -289,7 +293,8 @@ identified:
 			else
 				y_offs = 0;
 
-			fb_display(i.rgb, i.alpha, i.width, i.height, x_pan, y_pan, x_offs, y_offs);
+			if(fb_display(i.rgb, i.alpha, i.width, i.height, x_pan, y_pan, x_offs, y_offs))
+				goto error;
 			refresh = 0;
 		}
 		if(delay)
@@ -394,7 +399,7 @@ done:
 		fflush(stdout);
 	}
 
-error_mem:
+error:
 	free(image);
 	free(alpha);
 	if(i.do_free)

@@ -39,7 +39,7 @@ void jpeg_cb_error_exit(j_common_ptr cinfo)
 	longjmp(mptr->envbuffer, 1);
 }
 
-int fh_jpeg_load(char *filename,unsigned char *buffer, unsigned char ** alpha, int x,int y)
+int fh_jpeg_load(char *filename, unsigned char *buffer, unsigned char ** alpha, int x, int y)
 {
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_decompress_struct *ciptr;

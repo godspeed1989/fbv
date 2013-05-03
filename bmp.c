@@ -28,10 +28,10 @@ int fh_bmp_id(char *name)
 	int fd;
 	char id[2];
 	fd = open(name, O_RDONLY);
-	if (fd == -1) return(0);
+	if(fd == -1) return(0);
 	read(fd, id, 2);
 	close(fd);
-	if ( id[0]=='B' && id[1]=='M' ) return(1);
+	if(id[0]=='B' && id[1]=='M') return(1);
 	return(0);
 }
 
@@ -53,7 +53,7 @@ void fetch_pallete(int fd, struct color pallete[], int count)
 }
 
 
-int fh_bmp_load(char *name,unsigned char *buffer, unsigned char **alpha, int x,int y)
+int fh_bmp_load(char *name, unsigned char *buffer, unsigned char **alpha, int x,int y)
 {
 	int fd, bpp, raster, i, j, k, skip;
 	unsigned char buff[4];
