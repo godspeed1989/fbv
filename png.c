@@ -1,14 +1,14 @@
 #include "config.h"
 
 #ifdef FBV_SUPPORT_PNG
-#include <png.h>
 #include "fbv.h"
+#include <stdlib.h>
+#include <string.h>
+#include <png.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define PNG_BYTES_TO_CHECK 4
 #ifndef min
@@ -64,7 +64,7 @@ int fh_png_load(char *name,unsigned char *buffer, unsigned char ** alpha,int x,i
 	png_init_io(png_ptr,fh);
 
 	png_read_info(png_ptr, info_ptr);
-	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,&interlace_type, NULL, NULL);
+	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 	if (color_type == PNG_COLOR_TYPE_PALETTE) png_set_expand(png_ptr);
 	if (bit_depth < 8) png_set_packing(png_ptr);
 	if (color_type == PNG_COLOR_TYPE_GRAY || color_type== PNG_COLOR_TYPE_GRAY_ALPHA) png_set_gray_to_rgb(png_ptr);
@@ -76,7 +76,7 @@ int fh_png_load(char *name,unsigned char *buffer, unsigned char ** alpha,int x,i
 
 	if(bit_depth == 16) png_set_strip_16(png_ptr);
 	number_passes = png_set_interlace_handling(png_ptr);
-	png_read_update_info(png_ptr,info_ptr);
+	png_read_update_info(png_ptr, info_ptr);
 
 	if (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || trans)
 	{
@@ -92,14 +92,11 @@ int fh_png_load(char *name,unsigned char *buffer, unsigned char ** alpha,int x,i
 		{
 			fbptr = buffer;
 			aptr = alpha_buffer;
-
 			for(i=0; i<height; i++)
 			{
 				int n;
 				unsigned char *trp = rp;
-
 		   		png_read_rows(png_ptr, rptr, NULL, 1);
-
 				for(n = 0; n < width; n++, fbptr += 3, trp += 4)
 				{
 					memcpy(fbptr, trp, 3);
@@ -159,7 +156,7 @@ int fh_png_getsize(char *name, int *x, int *y)
 
 	png_init_io(png_ptr,fh);
 	png_read_info(png_ptr, info_ptr);
-	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,&interlace_type, NULL, NULL);
+	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 	*x = width;
 	*y = height;

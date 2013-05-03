@@ -1,15 +1,15 @@
 #include "config.h"
 
 #ifdef FBV_SUPPORT_JPEG
+#include "fbv.h"
 #include <stdio.h>
 #include <string.h>
+#include <jpeglib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <jpeglib.h>
 #include <setjmp.h>
 #include <unistd.h>
-#include "fbv.h"
 
 struct r_jpeg_error_mgr
 {
@@ -45,7 +45,7 @@ int fh_jpeg_load(char *filename, unsigned char *buffer, unsigned char ** alpha, 
 	struct jpeg_decompress_struct *ciptr;
 	struct r_jpeg_error_mgr emgr;
 	unsigned char *bp;
-	int px, py, c;
+	int px, c;
 	FILE *fh;
 	JSAMPLE *lb;
 
@@ -53,27 +53,25 @@ int fh_jpeg_load(char *filename, unsigned char *buffer, unsigned char ** alpha, 
 	if(!(fh=fopen(filename,"rb"))) return(FH_ERROR_FILE);
 	ciptr->err = jpeg_std_error(&emgr.pub);
 	emgr.pub.error_exit = jpeg_cb_error_exit;
-	if(setjmp(emgr.envbuffer)==1)
+	if(setjmp(emgr.envbuffer))
 	{
-		// FATAL ERROR - Free the object and return...
 		jpeg_destroy_decompress(ciptr);
 		fclose(fh);
 		return(FH_ERROR_FORMAT);
 	}
 
 	jpeg_create_decompress(ciptr);
-	jpeg_stdio_src(ciptr,fh);
+	jpeg_stdio_src(ciptr, fh);
 	jpeg_read_header(ciptr, TRUE);
 	ciptr->out_color_space = JCS_RGB;
 	jpeg_start_decompress(ciptr);
 
 	px = ciptr->output_width;
-	py = ciptr->output_height;
 	c = ciptr->output_components;
 
 	if(c==3)
 	{
-		lb = (*ciptr->mem->alloc_small)((j_common_ptr) ciptr,JPOOL_PERMANENT,c*px);
+		lb = (*ciptr->mem->alloc_small)((j_common_ptr)ciptr, JPOOL_PERMANENT, c*px);
 		bp = buffer;
 		while (ciptr->output_scanline < ciptr->output_height)
 		{
@@ -93,30 +91,28 @@ int fh_jpeg_getsize(char *filename, int *x, int *y)
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_decompress_struct *ciptr;
 	struct r_jpeg_error_mgr emgr;
-	int px, py, c;
+	int px, py;
 	FILE *fh;
 
-	ciptr=&cinfo;
+	ciptr = &cinfo;
 	if(!(fh=fopen(filename,"rb"))) return(FH_ERROR_FILE);
 
 	ciptr->err = jpeg_std_error(&emgr.pub);
 	emgr.pub.error_exit = jpeg_cb_error_exit;
-	if(setjmp(emgr.envbuffer)==1)
+	if(setjmp(emgr.envbuffer))
 	{
-		// FATAL ERROR - Free the object and return...
 		jpeg_destroy_decompress(ciptr);
 		fclose(fh);
 		return(FH_ERROR_FORMAT);
 	}
 
 	jpeg_create_decompress(ciptr);
-	jpeg_stdio_src(ciptr,fh);
-	jpeg_read_header(ciptr,TRUE);
+	jpeg_stdio_src(ciptr, fh);
+	jpeg_read_header(ciptr, TRUE);
 	ciptr->out_color_space = JCS_RGB;
 	jpeg_start_decompress(ciptr);
 	px = ciptr->output_width;
 	py = ciptr->output_height;
-	c = ciptr->output_components;
 	*x = px;
 	*y = py;
 	jpeg_destroy_decompress(ciptr);
