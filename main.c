@@ -554,6 +554,6 @@ int main(int argc, char **argv)
 		printf("\033[?25h");
 		fflush(stdout);
 	}
-	return(0);
+	return 0;
 }
 
