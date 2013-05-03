@@ -1,0 +1,155 @@
+#!/bin/sh
+##
+## fbv configuration script
+##
+
+# See TGT's ./configure script for in-depth comments, becouse this
+# one is delivered from it...
+
+# If You touch anything below, You're asking for trouble
+
+BASENAME=$(basename "$0")
+
+unset prefix
+unset infodir
+unset mandir
+unset srcdir
+unset bindir
+unset libs
+unset jpeg
+unset png
+unset bmp
+unset dfb
+
+help(){
+cat << EOF >&2
+Usage: ./configure [options]
+Options: [defaults in brackets after descriptions]
+
+If a long option shows an argument as mandatory, then it is mandatory
+for the equivalent short option also.  Similarly for optional arguments.
+
+General:
+  --help	    print this message
+  --libs=LIBS	additional libraries required
+  
+Directory and file names:
+  --prefix=PREFIX	install files in PREFIX [/usr/local]
+  --bindir=DIR		binary executable in DIR [PREFIX/lib]
+  --infodir=DIR		info documentation in DIR [PREFIX/info]
+  --mandir=DIR		man documentation in DIR [PREFIX/man]
+
+Features and packages:
+  --without-libjpeg	  disable libjpeg support even if found
+  --without-libpng    disable libpng support even if found
+  --without-bmp       disable bmp support
+EOF
+}
+
+# get options
+TEMP=$(getopt -o h \
+--long help,\
+prefix:,srcdir:,bindir:,\
+infodir:,mandir:,\
+without-libjpeg,without-libpng,without-bmp,libs: \
+-n "$BASENAME" -- "$@")
+
+if [ $? != 0 ] ; then help ; exit 1 ; fi
+#
+eval set -- "$TEMP"
+
+# process options
+while true ; do
+	case "$1" in
+		-h|--help) help ; exit 0 ;;
+		--libs) libs="$2"; shift 2 ;;
+		--prefix) prefix="$2" ; shift 2 ;;
+		--srcdir) srcdir="$2" ; shift 2 ;;
+		--bindir) bindir="$2" ; shift 2 ;;
+		--infodir) infodir="$2" ; shift 2 ;;
+		--mandir) mandir="$2" ; shift 2 ;;
+		--without-libjpeg) jpeg="disabled" ; shift ;;
+		--without-libpng) png="disabled" ; shift ;;
+		--without-bmp) bmp="disabled" ; shift ;;
+
+		--) shift ; break ;;
+		*) help ; exit 1 ;;
+	esac
+done
+
+[ -z "$prefix" ] && prefix="/usr/local"
+[ -z "$bindir" ] && bindir="${prefix}/bin"
+[ -z "$mandir" ] && mandir="${prefix}/man"
+[ -z "$infodir" ] && infodir="${prefix}/info"
+
+cat << EOF | tee ./config.log >Make.conf
+prefix	= $prefix
+bindir	= $bindir
+mandir	= $mandir
+infodir	= $infodir
+EOF
+
+# tests
+rm -f \$\$~test \$\$~test.c
+cat > \$\$~test.c << EOF
+main()
+{
+}
+EOF
+
+###
+echo -n "checking for libjpeg presence... "
+if [ "$jpeg" != "disabled" ]; then
+jpeg="no"
+cc 2>>./config.log >>./config.log -o \$\$~test \$\$~test.c -ljpeg $libs
+if [ -e \$\$~test ]; then
+	libs="-ljpeg $libs" ; jpeg="yes"
+fi
+fi
+echo $jpeg
+echo "libjpeg: $jpeg" >> ./config.log
+###
+echo -n "checking for libpng presence... "
+if [ "$png" != "disabled" ]; then
+png="no"
+cc 2>>./config.log >>./config.log -o \$\$~test \$\$~test.c -lpng $libs
+if [ -e \$\$~test ]; then
+	libs="-lpng $libs" ; png="yes"
+fi
+fi
+echo $png
+echo "libpng: $png" >> ./config.log
+###
+echo -n "building with bmp support... "
+if [ "$bmp" != "disabled" ]; then
+bmp="yes"
+fi
+echo $bmp
+echo "bmp: $bmp" >> ./config.log
+
+###
+rm -f \$\$~test \$\$~test.c
+
+###
+echo -n "checking for DEFAULT_FRAMEBUFFER... "
+if [ -n "$FRAMEBUFFER" ]; then
+	dfb="$FRAMEBUFFER"
+else
+	dfb="/dev/fb0"
+fi
+echo $dfb
+echo "fb: $dfb" >> ./config.log
+
+###
+echo >> Make.conf
+echo "LIBS	= $libs" | tee -a ./config.log >>Make.conf
+echo "#define IDSTRING \"fbv "`cat VERSION`"\"" | tee -a ./config.log >config.h
+echo "#define DEFAULT_FRAMEBUFFER \"$dfb\"" | tee -a ./config.log >>config.h
+[ "$jpeg" != "disabled" ] && echo "#define FBV_SUPPORT_JPEG" | tee -a ./config.log >>config.h
+[ "$png" != "disabled" ] && echo "#define FBV_SUPPORT_PNG" | tee -a ./config.log >>config.h
+[ "$bmp" != "disabled" ] && echo "#define FBV_SUPPORT_BMP" | tee -a ./config.log >>config.h
+echo "installation dir: $bindir"
+echo "manuals dir: $mandir"
+
+exit 0
+## EOF

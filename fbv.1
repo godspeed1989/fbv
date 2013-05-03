@@ -1,0 +1,58 @@
+.TH fbv 1 "2001-02-18"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+FrameBuffer Viewer
+.SH SYNOPSIS
+\fBfbv\fP [options] image1 image2 image3 ...
+.SH DESCRIPTION
+This is a simple program to view pictures on a framebuffer console.
+.PP
+.nh
+.SH OPTIONS
+.TP
+.BR "\fB--help\fP" , \fB-h\fP
+help
+.TP
+.BR \fB--alpha\fP , \fB-a\fP	
+Respect alpha channel (if applicable)
+.TP
+.BR \fB--noclear\fP , \fB-c\fP	
+Do not clear the screen before/after displaying image
+.TP
+.BR \fB--unhide\fP , \fB-u\fP
+Do not hide/show cursor before/after displaying image
+.TP
+.BR \fB--noinfo\fP , \fB-i\fP
+Do not show image information
+.TP
+.BR \fB--stretch\fP , \fB-f\fP
+Strech (using simple resize) the image to fit onto screen if necessary
+.TP
+.BR \fB--colorstretch\fP , \fB-k\fP
+Strech (using color average resize) the image to fit onto screen if necessary 
+.TP
+.BR \fB--delay\fP , "\fB-s\fP \fI<delay>\fP"
+Slideshow, wait 'delay' tenths of a second before displaying each image
+
+.BR
+      Use a,d,w and x to scroll the image
+      
+
+
+.SH AUTHOR
+Tomasz 'smoku' Sterna  <tomek@smoczy.net>
+.br
+Mateusz 'mteg' Golicz  <mtg@elsat.net.pl>
+.br
+Marcin 'Piaskowy' Zieba <piaskowy@irc.pl>
+.br
+		
