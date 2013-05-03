@@ -27,19 +27,14 @@ int fh_bmp_id(char *name)
 {
 	int fd;
 	char id[2];
-
 	fd = open(name, O_RDONLY);
-	if (fd == -1) {
-		return(0);
-	}
-
+	if (fd == -1) return(0);
 	read(fd, id, 2);
 	close(fd);
-	if ( id[0]=='B' && id[1]=='M' ) {
-		return(1);
-	}
+	if ( id[0]=='B' && id[1]=='M' ) return(1);
 	return(0);
 }
+
 
 void fetch_pallete(int fd, struct color pallete[], int count)
 {
@@ -47,7 +42,8 @@ void fetch_pallete(int fd, struct color pallete[], int count)
 	int i;
 
 	lseek(fd, BMP_COLOR_OFFSET, SEEK_SET);
-	for (i=0; i<count; i++) {
+	for (i=0; i<count; i++)
+	{
 		read(fd, buff, 4);
 		pallete[i].red = buff[2];
 		pallete[i].green = buff[1];
@@ -55,6 +51,7 @@ void fetch_pallete(int fd, struct color pallete[], int count)
 	}
 	return;
 }
+
 
 int fh_bmp_load(char *name,unsigned char *buffer, unsigned char **alpha, int x,int y)
 {
@@ -203,12 +200,8 @@ int fh_bmp_getsize(char *name,int *x,int *y)
 	unsigned char size[4];
 
 	fd = open(name, O_RDONLY);
-	if (fd == -1) {
-		return(FH_ERROR_FILE);
-	}
-	if (lseek(fd, BMP_SIZE_OFFSET, SEEK_SET) == -1) {
-		return(FH_ERROR_FORMAT);
-	}
+	if (fd == -1) return(FH_ERROR_FILE);
+	if (lseek(fd, BMP_SIZE_OFFSET, SEEK_SET) == -1) return(FH_ERROR_FORMAT);
 
 	read(fd, size, 4);
 	*x = size[0] + (size[1]<<8) + (size[2]<<16) + (size[3]<<24);

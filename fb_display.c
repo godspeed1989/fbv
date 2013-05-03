@@ -104,7 +104,7 @@ int openFB(const char *name)
 		else name = DEFAULT_FRAMEBUFFER;
 	}
 
-	if ((fh = open(name, O_RDWR)) == -1)
+	if((fh = open(name, O_RDWR)) == -1)
 	{
 		fprintf(stderr, "open %s: %s\n", name, strerror(errno));
 		exit(1);
@@ -119,7 +119,7 @@ void closeFB(int fh)
 
 void getVarScreenInfo(int fh, struct fb_var_screeninfo *var)
 {
-	if (ioctl(fh, FBIOGET_VSCREENINFO, var))
+	if(ioctl(fh, FBIOGET_VSCREENINFO, var))
 	{
 		fprintf(stderr, "ioctl FBIOGET_VSCREENINFO: %s\n", strerror(errno));
 		exit(1);
@@ -128,7 +128,7 @@ void getVarScreenInfo(int fh, struct fb_var_screeninfo *var)
 
 void setVarScreenInfo(int fh, struct fb_var_screeninfo *var)
 {
-	if (ioctl(fh, FBIOPUT_VSCREENINFO, var))
+	if(ioctl(fh, FBIOPUT_VSCREENINFO, var))
 	{
 		fprintf(stderr, "ioctl FBIOPUT_VSCREENINFO: %s\n", strerror(errno));
 		exit(1);
@@ -137,9 +137,10 @@ void setVarScreenInfo(int fh, struct fb_var_screeninfo *var)
 
 void getFixScreenInfo(int fh, struct fb_fix_screeninfo *fix)
 {
-	if (ioctl(fh, FBIOGET_FSCREENINFO, fix)){
+	if (ioctl(fh, FBIOGET_FSCREENINFO, fix))
+	{
 		fprintf(stderr, "ioctl FBIOGET_FSCREENINFO: %s\n", strerror(errno));
-	exit(1);
+		exit(1);
 	}
 }
 
@@ -156,7 +157,8 @@ void make332map(struct fb_cmap *map)
 	gs = 256 / (g - 1);
 	bs = 256 / (b - 1);
 
-	for (i = 0; i < 256; i++) {
+	for (i = 0; i < 256; i++)
+	{
 		map->red[i]   = (rs * ((i / (g * b)) % r)) * 255;
 		map->green[i] = (gs * ((i / b) % g)) * 255;
 		map->blue[i]  = (bs * ((i) % b)) * 255;

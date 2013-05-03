@@ -193,36 +193,36 @@ int show_image(char *filename)
 
 #ifdef FBV_SUPPORT_PNG
 	if(fh_png_id(filename))
-		if(fh_png_getsize(filename, &x_size, &y_size) == FH_ERROR_OK)
-		{
-			load = fh_png_load;
-			goto identified;
-		}
+	if(fh_png_getsize(filename, &x_size, &y_size) == FH_ERROR_OK)
+	{
+		load = fh_png_load;
+		goto identified;
+	}
 #endif
 
 #ifdef FBV_SUPPORT_JPEG
 	if(fh_jpeg_id(filename))
-		if(fh_jpeg_getsize(filename, &x_size, &y_size) == FH_ERROR_OK)
-		{
-			load = fh_jpeg_load;
-			goto identified;
-		}
+	if(fh_jpeg_getsize(filename, &x_size, &y_size) == FH_ERROR_OK)
+	{
+		load = fh_jpeg_load;
+		goto identified;
+	}
 #endif
 
 #ifdef FBV_SUPPORT_BMP
 	if(fh_bmp_id(filename))
-		if(fh_bmp_getsize(filename, &x_size, &y_size) == FH_ERROR_OK)
-		{
-			load = fh_bmp_load;
-			goto identified;
-		}
+	if(fh_bmp_getsize(filename, &x_size, &y_size) == FH_ERROR_OK)
+	{
+		load = fh_bmp_load;
+		goto identified;
+	}
 #endif
 	fprintf(stderr, "%s: Unable to access file or file format unknown.\n", filename);
 	return(1);
 
 identified:
 
-	if(!(image = (unsigned char*) malloc(x_size * y_size * 3)))
+	if(!(image = (unsigned char*)malloc(x_size * y_size * 3)))
 	{
 		fprintf(stderr, "%s: Out of memory.\n", filename);
 		goto error_mem;
@@ -239,8 +239,6 @@ identified:
 		free(alpha);
 		alpha = NULL;
 	}
-
-
 
 	getCurrentRes(&screen_width, &screen_height);
 	i.do_free = 0;
@@ -386,10 +384,8 @@ identified:
 					transform_rotation -= 4;
 				retransform = 1;
 				break;
-
 		}
-
-	}
+	}// while(1)
 
 done:
 	if(opt_clear)
@@ -407,34 +403,34 @@ error_mem:
 		free(i.alpha);
 	}
 	return(ret);
-
 }
 
 void help(char *name)
 {
 	printf("Usage: %s [options] image1 image2 image3 ...\n\n"
 		   "Available options:\n"
-		   " --help		| -h : Show this help\n"
-		   " --alpha	   | -a : Use the alpha channel (if applicable)\n"
-		   " --dontclear   | -c : Do not clear the screen before and after displaying the image\n"
-		   " --donthide	| -u : Do not hide the cursor before and after displaying the image\n"
-		   " --noinfo	  | -i : Supress image information\n"
-		   " --stretch	 | -f : Strech (using a simple resizing routine) the image to fit onto screen if necessary\n"
-		   " --colorstretch| -k : Strech (using a 'color average' resizing routine) the image to fit onto screen if necessary\n"
-		   " --enlarge	 | -e : Enlarge the image to fit the whole screen if necessary\n"
+		   " --help	        | -h : Show this help\n"
+		   " --alpha        | -a : Use the alpha channel (if applicable)\n"
+		   " --dontclear    | -c : Do not clear the screen before and after displaying the image\n"
+		   " --donthide     | -u : Do not hide the cursor before and after displaying the image\n"
+		   " --noinfo       | -i : Supress image information\n"
+		   " --stretch      | -f : Strech (using a simple resizing routine) the image to fit onto screen if necessary\n"
+		   " --colorstretch | -k : Strech (using a 'color average' resizing routine) the image to fit onto screen if necessary\n"
+		   " --enlarge      | -e : Enlarge the image to fit the whole screen if necessary\n"
 		   " --ignore-aspect| -r : Ignore the image aspect while resizing\n"
-		   " --delay <d>   | -s <delay> : Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
+		   " --delay <d>    | -s <delay> : Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
 		   "Keys:\n"
-		   " r			: Redraw the image\n"
-		   " a, d, w, x   : Pan the image\n"
-		   " f			: Toggle resizing on/off\n"
-		   " k			: Toggle resizing quality\n"
-		   " e			: Toggle enlarging on/off\n"
-		   " i			: Toggle respecting the image aspect on/off\n"
-		   " n			: Rotate the image 90 degrees left\n"
-		   " m			: Rotate the image 90 degrees right\n"
-		   " p			: Disable all transformations\n"
-		   "Copyright (C) 2000 - 2004 Mateusz Golicz, Tomasz Sterna.\n", name);
+		   " r          : Redraw the image\n"
+		   " a, d, w, x : Pan the image\n"
+		   " f          : Toggle resizing on/off\n"
+		   " k          : Toggle resizing quality\n"
+		   " e          : Toggle enlarging on/off\n"
+		   " i          : Toggle respecting the image aspect on/off\n"
+		   " n          : Rotate the image 90 degrees left\n"
+		   " m          : Rotate the image 90 degrees right\n"
+		   " p          : Disable all transformations\n"
+		   " Copyright (C) 2000 - 2004 Mateusz Golicz, Tomasz Sterna.\n"
+		   " Copyright (C) 2013 yanlin, godspeed1989@gitbub\n", name);
 }
 
 void sighandler(int s)

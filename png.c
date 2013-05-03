@@ -19,8 +19,9 @@ int fh_png_id(char *name)
 {
 	int fd;
 	char id[4];
-	fd=open(name,O_RDONLY); if(fd==-1) return(0);
-	read(fd,id,4);
+	fd = open(name, O_RDONLY);
+	if(fd==-1) return(0);
+	read(fd, id, 4);
 	close(fd);
 	if(id[1]=='P' && id[2]=='N' && id[3]=='G') return(1);
 	return(0);
@@ -40,7 +41,7 @@ int fh_png_load(char *name,unsigned char *buffer, unsigned char ** alpha,int x,i
 	unsigned char *fbptr;
 	FILE *fh;
 
-	if(!(fh=fopen(name,"rb"))) return(FH_ERROR_FILE);
+	if(!(fh = fopen(name,"rb"))) return(FH_ERROR_FILE);
 
 	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
 	if (png_ptr == NULL) return(FH_ERROR_FORMAT);
@@ -51,7 +52,7 @@ int fh_png_load(char *name,unsigned char *buffer, unsigned char ** alpha,int x,i
 		fclose(fh);
 		return(FH_ERROR_FORMAT);
 	}
-	rp=0;
+	rp = 0;
 	if (setjmp(png_ptr->jmpbuf))
 	{
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
@@ -125,7 +126,9 @@ int fh_png_load(char *name,unsigned char *buffer, unsigned char ** alpha,int x,i
 	fclose(fh);
 	return(FH_ERROR_OK);
 }
-int fh_png_getsize(char *name,int *x,int *y)
+
+
+int fh_png_getsize(char *name, int *x, int *y)
 {
 	png_structp png_ptr;
 	png_infop info_ptr;
@@ -136,7 +139,7 @@ int fh_png_getsize(char *name,int *x,int *y)
 
 	if(!(fh=fopen(name,"rb"))) return(FH_ERROR_FILE);
 
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (png_ptr == NULL) return(FH_ERROR_FORMAT);
 	info_ptr = png_create_info_struct(png_ptr);
 	if (info_ptr == NULL)
@@ -145,7 +148,7 @@ int fh_png_getsize(char *name,int *x,int *y)
 		fclose(fh);
 		return(FH_ERROR_FORMAT);
 	}
-	rp=0;
+	rp = 0;
 	if (setjmp(png_ptr->jmpbuf))
 	{
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
@@ -158,9 +161,10 @@ int fh_png_getsize(char *name,int *x,int *y)
 	png_read_info(png_ptr, info_ptr);
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,&interlace_type, NULL, NULL);
 	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
-	*x=width;
-	*y=height;
+	*x = width;
+	*y = height;
 	fclose(fh);
 	return(FH_ERROR_OK);
 }
 #endif /*FBV_SUPPORT_PNG*/
+

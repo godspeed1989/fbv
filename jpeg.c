@@ -2,13 +2,13 @@
 
 #ifdef FBV_SUPPORT_JPEG
 #include <stdio.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <jpeglib.h>
 #include <setjmp.h>
 #include <unistd.h>
-#include <string.h>
 #include "fbv.h"
 
 struct r_jpeg_error_mgr
@@ -34,9 +34,9 @@ int fh_jpeg_id(char *name)
 void jpeg_cb_error_exit(j_common_ptr cinfo)
 {
 	struct r_jpeg_error_mgr *mptr;
-	mptr=(struct r_jpeg_error_mgr*) cinfo->err;
+	mptr = (struct r_jpeg_error_mgr*) cinfo->err;
 	(*cinfo->err->output_message) (cinfo);
-	longjmp(mptr->envbuffer,1);
+	longjmp(mptr->envbuffer, 1);
 }
 
 int fh_jpeg_load(char *filename,unsigned char *buffer, unsigned char ** alpha, int x,int y)
@@ -49,10 +49,10 @@ int fh_jpeg_load(char *filename,unsigned char *buffer, unsigned char ** alpha, i
 	FILE *fh;
 	JSAMPLE *lb;
 
-	ciptr=&cinfo;
+	ciptr = &cinfo;
 	if(!(fh=fopen(filename,"rb"))) return(FH_ERROR_FILE);
-	ciptr->err=jpeg_std_error(&emgr.pub);
-	emgr.pub.error_exit=jpeg_cb_error_exit;
+	ciptr->err = jpeg_std_error(&emgr.pub);
+	emgr.pub.error_exit = jpeg_cb_error_exit;
 	if(setjmp(emgr.envbuffer)==1)
 	{
 		// FATAL ERROR - Free the object and return...
@@ -63,24 +63,23 @@ int fh_jpeg_load(char *filename,unsigned char *buffer, unsigned char ** alpha, i
 
 	jpeg_create_decompress(ciptr);
 	jpeg_stdio_src(ciptr,fh);
-	jpeg_read_header(ciptr,TRUE);
-	ciptr->out_color_space=JCS_RGB;
+	jpeg_read_header(ciptr, TRUE);
+	ciptr->out_color_space = JCS_RGB;
 	jpeg_start_decompress(ciptr);
 
-	px=ciptr->output_width;
-	py=ciptr->output_height;
-	c=ciptr->output_components;
-
+	px = ciptr->output_width;
+	py = ciptr->output_height;
+	c = ciptr->output_components;
 
 	if(c==3)
 	{
-		lb=(*ciptr->mem->alloc_small)((j_common_ptr) ciptr,JPOOL_PERMANENT,c*px);
-		bp=buffer;
+		lb = (*ciptr->mem->alloc_small)((j_common_ptr) ciptr,JPOOL_PERMANENT,c*px);
+		bp = buffer;
 		while (ciptr->output_scanline < ciptr->output_height)
 		{
 			jpeg_read_scanlines(ciptr, &lb, 1);
-			memcpy(bp,lb,px*c);
-			bp+=px*c;
+			memcpy(bp, lb, px*c);
+			bp += px*c;
 		}
 	}
 	jpeg_finish_decompress(ciptr);
@@ -100,8 +99,8 @@ int fh_jpeg_getsize(char *filename, int *x, int *y)
 	ciptr=&cinfo;
 	if(!(fh=fopen(filename,"rb"))) return(FH_ERROR_FILE);
 
-	ciptr->err=jpeg_std_error(&emgr.pub);
-	emgr.pub.error_exit=jpeg_cb_error_exit;
+	ciptr->err = jpeg_std_error(&emgr.pub);
+	emgr.pub.error_exit = jpeg_cb_error_exit;
 	if(setjmp(emgr.envbuffer)==1)
 	{
 		// FATAL ERROR - Free the object and return...
@@ -113,13 +112,13 @@ int fh_jpeg_getsize(char *filename, int *x, int *y)
 	jpeg_create_decompress(ciptr);
 	jpeg_stdio_src(ciptr,fh);
 	jpeg_read_header(ciptr,TRUE);
-	ciptr->out_color_space=JCS_RGB;
+	ciptr->out_color_space = JCS_RGB;
 	jpeg_start_decompress(ciptr);
-	px=ciptr->output_width;
-	py=ciptr->output_height;
+	px = ciptr->output_width;
+	py = ciptr->output_height;
 	c = ciptr->output_components;
-	*x=px;
-	*y=py;
+	*x = px;
+	*y = py;
 	jpeg_destroy_decompress(ciptr);
 	fclose(fh);
 	return(FH_ERROR_OK);
