@@ -71,7 +71,7 @@ int fh_jpeg_load(char *filename, unsigned char *buffer, unsigned char ** alpha, 
 
 	if(c==3)
 	{
-		lb = (*ciptr->mem->alloc_small)((j_common_ptr)ciptr, JPOOL_PERMANENT, c*px);
+		lb = (JSAMPLE*)(*ciptr->mem->alloc_small)((j_common_ptr)ciptr, JPOOL_PERMANENT, c*px);
 		bp = buffer;
 		while (ciptr->output_scanline < ciptr->output_height)
 		{

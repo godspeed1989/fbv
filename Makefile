@@ -5,7 +5,7 @@
 
 include Make.conf
 
-CC = gcc 
+CC = g++ 
 CFLAGS = -Wall -D_GNU_SOURCE
 
 SOURCES	= main.c jpeg.c png.c bmp.c fb_display.c transforms.c

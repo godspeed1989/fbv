@@ -15,12 +15,12 @@
 #include <string.h>
 /* Public Use Functions:
  *
- * extern void fb_display(unsigned char *rgbbuff,
+ * extern int fb_display(unsigned char *rgbbuff,
  *	 int x_size, int y_size,
  *	 int x_pan, int y_pan,
  *	 int x_offs, int y_offs);
  *
- * extern void getCurrentRes(int *x,int *y);
+ * extern int getCurrentRes(int *x,int *y);
  *
  */
 
@@ -37,20 +37,23 @@ void setVarScreenInfo(int fh, struct fb_var_screeninfo *var);
 void getFixScreenInfo(int fh, struct fb_fix_screeninfo *fix);
 void set332map(int fh);
 void* convertRGB2FB(int fh, unsigned char *rgbbuff, unsigned long count, int bpp, int *cpp);
-void blit2FB(int fh, void *fbbuff, unsigned char *alpha,
+void blit2FB(int fh, unsigned char *fbbuff, unsigned char *alpha,
 	unsigned int pic_xs, unsigned int pic_ys,
 	unsigned int scr_xs, unsigned int scr_ys,
 	unsigned int xp, unsigned int yp,
 	unsigned int xoffs, unsigned int yoffs,
 	int cpp);
 
-int fb_display(unsigned char *rgbbuff, unsigned char * alpha, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs)
+int fb_display(unsigned char *rgbbuff, unsigned char * alpha,
+               unsigned int x_size, unsigned int y_size,
+               unsigned int x_pan, unsigned int y_pan,
+               unsigned int x_offs, unsigned int y_offs)
 {
 	struct fb_var_screeninfo var;
 	struct fb_fix_screeninfo fix;
-	unsigned short *fbbuff = NULL;
+	unsigned char *fbbuff = NULL;
 	int fh = -1, bp = 0;
-	unsigned long x_stride;
+	unsigned int x_stride;
 
 	/* get the framebuffer device handle */
 	fh = openFB(NULL);
@@ -71,7 +74,7 @@ int fb_display(unsigned char *rgbbuff, unsigned char * alpha, int x_size, int y_
 	if(y_offs + y_size > var.yres) y_offs = 0;
 
 	/* blit buffer 2 fb */
-	fbbuff = convertRGB2FB(fh, rgbbuff, x_size * y_size, var.bits_per_pixel, &bp);
+	fbbuff = (unsigned char*)convertRGB2FB(fh, rgbbuff, x_size * y_size, var.bits_per_pixel, &bp);
 #if 0
 	blit2FB(fh, fbbuff, alpha, x_size, y_size, x_stride, var.yres, x_pan, y_pan, x_offs, y_offs, bp);
 #else
@@ -195,7 +198,7 @@ void set332map(int fh)
 	set8map(fh, &map332);
 }
 
-void blit2FB(int fh, void *fbbuff, unsigned char *alpha,
+void blit2FB(int fh, unsigned char *fbbuff, unsigned char *alpha,
 	unsigned int pic_xs, unsigned int pic_ys,
 	unsigned int scr_xs, unsigned int scr_ys,
 	unsigned int xp, unsigned int yp,
@@ -211,7 +214,7 @@ void blit2FB(int fh, void *fbbuff, unsigned char *alpha,
 	xc = (pic_xs > scr_xs) ? scr_xs : pic_xs;
 	yc = (pic_ys > scr_ys) ? scr_ys : pic_ys;
 
-	fb = mmap(NULL, scr_xs * scr_ys * cpp, PROT_WRITE | PROT_READ, MAP_SHARED, fh, 0);
+	fb = (unsigned char*)mmap(NULL, scr_xs * scr_ys * cpp, PROT_WRITE | PROT_READ, MAP_SHARED, fh, 0);
 
 	if(fb == MAP_FAILED)
 	{

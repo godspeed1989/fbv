@@ -6,7 +6,9 @@
 #define FH_ERROR_FORMAT 2	/* file format error */
 
 int fb_display(unsigned char *rgbbuff, unsigned char * alpha,
-               int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs);
+               unsigned int x_size, unsigned int y_size,
+               unsigned int x_pan, unsigned int y_pan,
+               unsigned int x_offs, unsigned int y_offs);
 int getCurrentRes(int *x, int *y);
 
 #ifdef FBV_SUPPORT_BMP

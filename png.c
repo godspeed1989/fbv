@@ -28,12 +28,12 @@ int fh_png_id(char *name)
 }
 
 
-int fh_png_load(char *name,unsigned char *buffer, unsigned char ** alpha,int x,int y)
+int fh_png_load(char *name, unsigned char *buffer, unsigned char ** alpha,int x,int y)
 {
 	png_structp png_ptr;
 	png_infop info_ptr;
 	png_uint_32 width, height;
-	int i;
+	png_uint_32 i;
 	int bit_depth, color_type, interlace_type;
 	int number_passes,pass, trans = 0;
 	png_bytep rptr[2];
@@ -94,7 +94,7 @@ int fh_png_load(char *name,unsigned char *buffer, unsigned char ** alpha,int x,i
 			aptr = alpha_buffer;
 			for(i=0; i<height; i++)
 			{
-				int n;
+				png_uint_32 n;
 				unsigned char *trp = rp;
 		   		png_read_rows(png_ptr, rptr, NULL, 1);
 				for(n = 0; n < width; n++, fbptr += 3, trp += 4)
