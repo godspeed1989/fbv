@@ -24,9 +24,9 @@
  *
  */
 
-unsigned short red[256], green[256], blue[256];
+__u16 red[256], green[256], blue[256];
 struct fb_cmap map332 = {0, 256, red, green, blue, NULL};
-unsigned short red_b[256], green_b[256], blue_b[256];
+__u16 red_b[256], green_b[256], blue_b[256];
 struct fb_cmap map_back = {0, 256, red_b, green_b, blue_b, NULL};
 
 
@@ -228,8 +228,8 @@ void blit2FB(int fh, unsigned char *fbbuff, unsigned char *alpha,
 		set332map(fh);
 	}
 
-	fbptr = fb	 + (yoffs * scr_xs + xoffs) * cpp;
-	imptr = fbbuff + (yp	* pic_xs + xp) * cpp;
+	fbptr = fb + (yoffs * scr_xs + xoffs) * cpp;
+	imptr = fbbuff + (yp * pic_xs + xp) * cpp;
 
 	if(alpha)
 	{
