@@ -308,7 +308,10 @@ identified:
 			FD_SET(0, &fds);
 
 			if(select(1, &fds, NULL, NULL, &tv) <= 0)
+			{
+				ret = 1;
 				break;
+			}
 			delay = 0;
 		}
 

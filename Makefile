@@ -28,6 +28,7 @@ distclean: clean
 
 install: $(OUT)
 	cp $(OUT) $(bindir)
+	[ -d $(mandir)/man1 ] || mkdir -p $(mandir)/man1
 	gzip -9c $(OUT).1 > $(mandir)/man1/$(OUT).1.gz
 
 uninstall: $(bindir)/$(OUT)
