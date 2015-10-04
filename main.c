@@ -39,7 +39,7 @@ void setup_console(int t)
 	}
 	else
 	{
-		printf("restore console\n");
+      //printf("restore console\n");
 		tcsetattr(0, TCSANOW, &old_termios);
 	}
 }
