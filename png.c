@@ -53,7 +53,7 @@ int fh_png_load(char *name, unsigned char *buffer, unsigned char ** alpha,int x,
 		return(FH_ERROR_FORMAT);
 	}
 	rp = 0;
-	if (setjmp(png_ptr->jmpbuf))
+	if (setjmp(png_jmpbuf(png_ptr)))
 	{
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 		if(rp) free(rp);
@@ -146,7 +146,7 @@ int fh_png_getsize(char *name, int *x, int *y)
 		return(FH_ERROR_FORMAT);
 	}
 	rp = 0;
-	if (setjmp(png_ptr->jmpbuf))
+	if (setjmp(png_jmpbuf(png_ptr)))
 	{
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 		if(rp) free(rp);
