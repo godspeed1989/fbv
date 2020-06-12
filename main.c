@@ -19,7 +19,7 @@ static int opt_clear = 1;
 static int opt_alpha = 0;
 static int opt_hide_cursor = 1;
 static int opt_image_info = 1;
-static int opt_stretch = 0;
+static int opt_shrink = 0;
 static int opt_delay = 0;
 static int opt_enlarge = 0;
 static int opt_ignore_aspect = 0;
@@ -190,8 +190,8 @@ int show_image(char *filename)
 	int x_pan, y_pan, x_offs, y_offs, refresh = 1;
 	int delay = opt_delay, retransform = 1;
 
-	int transform_stretch = opt_stretch, transform_enlarge = opt_enlarge;
-	int transform_cal = (opt_stretch == 2), transform_iaspect = opt_ignore_aspect;
+	int transform_shrink = opt_shrink, transform_enlarge = opt_enlarge;
+	int transform_cal = (opt_shrink == 2), transform_iaspect = opt_ignore_aspect;
 	int transform_rotation = 0;
 
 	struct image i;
@@ -266,7 +266,7 @@ identified:
 			if(transform_rotation)
 				do_rotate(&i, transform_rotation);
 
-			if(transform_stretch)
+			if(transform_shrink)
 				do_fit_to_screen(&i, screen_width, screen_height, transform_iaspect, transform_cal);
 
 			if(transform_enlarge)
@@ -360,7 +360,7 @@ identified:
 				refresh = 1;
 				break;
 			case 'f':
-				transform_stretch = !transform_stretch;
+				transform_shrink = !transform_shrink;
 				retransform = 1;
 				break;
 			case 'e':
@@ -379,7 +379,7 @@ identified:
 				transform_cal = 0;
 				transform_iaspect = 0;
 				transform_enlarge = 0;
-				transform_stretch = 0;
+				transform_shrink = 0;
 				retransform = 1;
 				break;
 			case 'n':
@@ -424,8 +424,8 @@ void help(char *name)
 		   "  -c, --dontclear     Do not clear the screen before and after displaying the image\n"
 		   "  -u, --donthide      Do not hide the cursor before and after displaying the image\n"
 		   "  -i, --noinfo        Supress image information\n"
-		   "  -f, --stretch       Strech (using a simple resizing routine) the image to fit onto screen if necessary\n"
-		   "  -k, --colorstretch  Strech (using a 'color average' resizing routine) the image to fit onto screen if necessary\n"
+		   "  -f, --shrink        Shrink (using a simple resizing routine) the image to fit onto screen if necessary\n"
+		   "  -k, --colorshrink   Shrink (using a 'color average' resizing routine) the image to fit onto screen if necessary\n"
 		   "  -e, --enlarge       Enlarge the image to fit the whole screen if necessary\n"
 		   "  -r, --ignore-aspect Ignore the image aspect while resizing\n"
 		   "  -s <delay>, --delay <d>  Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
@@ -465,8 +465,8 @@ int main(int argc, char **argv)
 		{"alpha",         no_argument,  0, 'a'},
 		{"unhide",        no_argument,  0, 'u'},
 		{"noinfo",        no_argument,  0, 'i'},
-		{"stretch",       no_argument,  0, 'f'},
-		{"colorstrech",   no_argument,  0, 'k'},
+		{"shrink",        no_argument,  0, 'f'},
+		{"colorshrink",   no_argument,  0, 'k'},
 		{"delay",         required_argument, 0, 's'},
 		{"enlarge",       no_argument,  0, 'e'},
 		{"ignore-aspect", no_argument,  0, 'r'},
@@ -504,10 +504,10 @@ int main(int argc, char **argv)
 				opt_image_info = 0;
 				break;
 			case 'f':
-				opt_stretch = 1;
+				opt_shrink = 1;
 				break;
 			case 'k':
-				opt_stretch = 2;
+				opt_shrink = 2;
 				break;
 			case 'e':
 				opt_enlarge = 1;
