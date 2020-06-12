@@ -20,6 +20,8 @@ static int opt_alpha = 0;
 static int opt_hide_cursor = 1;
 static int opt_image_info = 1;
 static int opt_shrink = 0;
+static int opt_widthonly = 0;
+static int opt_heightonly = 0;
 static int opt_delay = 0;
 static int opt_enlarge = 0;
 static int opt_ignore_aspect = 0;
@@ -74,7 +76,7 @@ static inline void do_rotate(struct image *i, int rot)
 }
 
 
-static inline void do_enlarge(struct image *i, int screen_width, int screen_height, int ignoreaspect)
+static inline void do_enlarge(struct image *i, int screen_width, int screen_height, int ignoreaspect, int widthonly, int heightonly)
 {
 	if(((i->width > screen_width) || (i->height > screen_height)) && (!ignoreaspect))
 		return;
@@ -90,6 +92,18 @@ static inline void do_enlarge(struct image *i, int screen_width, int screen_heig
 			if(i->height < screen_height)
 				ysize = screen_height;
 
+			goto have_sizes;
+		}
+
+		if(widthonly) {
+			xsize = screen_width;
+			ysize = i->height * screen_width / i->width;
+			goto have_sizes;
+		}
+
+		if(heightonly) {
+			xsize = i->width * screen_height / i->height;
+			ysize = screen_height;
 			goto have_sizes;
 		}
 
@@ -127,7 +141,7 @@ have_sizes:
 }
 
 
-static inline void do_fit_to_screen(struct image *i, int screen_width, int screen_height, int ignoreaspect, int cal)
+static inline void do_fit_to_screen(struct image *i, int screen_width, int screen_height, int ignoreaspect, int widthonly, int heightonly, int cal)
 {
 	if((i->width > screen_width) || (i->height > screen_height))
 	{
@@ -140,6 +154,14 @@ static inline void do_fit_to_screen(struct image *i, int screen_width, int scree
 				nx_size = screen_width;
 			if(i->height > screen_height)
 				ny_size = screen_height;
+		}
+		else if(widthonly) {
+			nx_size = screen_width;
+			ny_size = i->height * screen_width / i->width;
+		}
+		else if(heightonly) {
+			nx_size = i->width * screen_height / i->height;
+			ny_size = screen_height;
 		}
 		else
 		{
@@ -193,6 +215,7 @@ int show_image(char *filename)
 	int transform_shrink = opt_shrink, transform_enlarge = opt_enlarge;
 	int transform_cal = (opt_shrink == 2), transform_iaspect = opt_ignore_aspect;
 	int transform_rotation = 0;
+	int transform_widthonly = opt_widthonly, transform_heightonly = opt_heightonly;
 
 	struct image i;
 
@@ -267,10 +290,10 @@ identified:
 				do_rotate(&i, transform_rotation);
 
 			if(transform_shrink)
-				do_fit_to_screen(&i, screen_width, screen_height, transform_iaspect, transform_cal);
+				do_fit_to_screen(&i, screen_width, screen_height, transform_iaspect, transform_widthonly, transform_heightonly, transform_cal);
 
 			if(transform_enlarge)
-				do_enlarge(&i, screen_width, screen_height, transform_iaspect);
+				do_enlarge(&i, screen_width, screen_height, transform_iaspect, transform_widthonly, transform_heightonly);
 
 			x_pan = y_pan = 0;
 			refresh = 1; retransform = 0;
@@ -367,6 +390,16 @@ identified:
 				transform_enlarge = !transform_enlarge;
 				retransform = 1;
 				break;
+			case 'l':
+				transform_widthonly = !transform_widthonly;
+				transform_heightonly = 0;
+				retransform = 1;
+				break;
+			case 't':
+				transform_widthonly = 0;
+				transform_heightonly = !transform_heightonly;
+				retransform = 1;
+				break;
 			case 'k':
 				transform_cal = !transform_cal;
 				retransform = 1;
@@ -427,6 +460,8 @@ void help(char *name)
 		   "  -f, --shrink        Shrink (using a simple resizing routine) the image to fit onto screen if necessary\n"
 		   "  -k, --colorshrink   Shrink (using a 'color average' resizing routine) the image to fit onto screen if necessary\n"
 		   "  -e, --enlarge       Enlarge the image to fit the whole screen if necessary\n"
+		   "  -l, --widthonly     Fit the image horizontally\n"
+		   "  -t, --heightonly    Fit the image vertically\n"
 		   "  -r, --ignore-aspect Ignore the image aspect while resizing\n"
 		   "  -s <delay>, --delay <d>  Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
 		   "Input keys:\n"
@@ -437,6 +472,8 @@ void help(char *name)
 		   " f          : Toggle resizing on/off\n"
 		   " k          : Toggle resizing quality\n"
 		   " e          : Toggle enlarging on/off\n"
+		   " l          : Toggle fitting the image horizontally\n"
+		   " t          : Toggle fitting the image vertically\n"
 		   " i          : Toggle respecting the image aspect on/off\n"
 		   " n          : Rotate the image 90 degrees left\n"
 		   " m          : Rotate the image 90 degrees right\n"
@@ -469,6 +506,8 @@ int main(int argc, char **argv)
 		{"colorshrink",   no_argument,  0, 'k'},
 		{"delay",         required_argument, 0, 's'},
 		{"enlarge",       no_argument,  0, 'e'},
+		{"widthonly",     no_argument,  0, 'l'},
+		{"heightonly",    no_argument,  0, 't'},
 		{"ignore-aspect", no_argument,  0, 'r'},
 		{0, 0, 0, 0}
 	};
@@ -481,7 +520,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	while((c = getopt_long_only(argc, argv, "hcauifks:er", long_options, NULL)) != EOF)
+	while((c = getopt_long_only(argc, argv, "hcauifks:eltr", long_options, NULL)) != EOF)
 	{
 		switch(c)
 		{
@@ -511,6 +550,12 @@ int main(int argc, char **argv)
 				break;
 			case 'e':
 				opt_enlarge = 1;
+				break;
+			case 'l':
+				opt_widthonly = 1;
+				break;
+			case 't':
+				opt_heightonly = 1;
 				break;
 			case 'r':
 				opt_ignore_aspect = 1;
