@@ -413,6 +413,8 @@ identified:
 				transform_iaspect = 0;
 				transform_enlarge = 0;
 				transform_shrink = 0;
+				transform_widthonly = 0;
+				transform_heightonly = 0;
 				retransform = 1;
 				break;
 			case 'n':
