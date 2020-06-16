@@ -358,6 +358,8 @@ identified:
 		}
 
 		c = getchar();
+		if (c == -1)
+			c = 'r';
 		switch(c)
 		{
 			case EOF:
@@ -605,6 +607,8 @@ int main(int argc, char **argv)
 	signal(SIGSEGV, sighandler);
 	signal(SIGTERM, sighandler);
 	signal(SIGABRT, sighandler);
+
+	vt_setup();
 
 	if(opt_hide_cursor)
 	{

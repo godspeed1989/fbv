@@ -10,6 +10,7 @@ int fb_display(unsigned char *rgbbuff, unsigned char * alpha,
                unsigned int x_pan, unsigned int y_pan,
                unsigned int x_offs, unsigned int y_offs);
 int getCurrentRes(int *x, int *y);
+void vt_setup();
 
 #ifdef FBV_SUPPORT_BMP
 int fh_bmp_id(char *name);
