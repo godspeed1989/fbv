@@ -26,6 +26,23 @@ static int opt_delay = 0;
 static int opt_enlarge = 0;
 static int opt_ignore_aspect = 0;
 
+static char inline_help[] =
+	"keys:\n"
+	"r		Redraw the image\n"
+	"< or ,		Previous image\n"
+	"> or .		Next image\n"
+	"a, d, w, x	Scroll the image (cursor keys also do that)\n"
+	"f		Toggle shrinking on/off\n"
+	"k		Toggle shrinking quality\n"
+	"e		Toggle enlarging on/off\n"
+	"l		Toggle fitting the image horizontally\n"
+	"t		Toggle fitting the image vertically\n"
+	"i		Toggle respecting the image aspect on/off\n"
+	"n		Rotate the image 90 degrees left\n"
+	"m		Rotate the image 90 degrees right\n"
+	"p		Disable all transformations\n"
+	"h		Help and image information\n";
+
 void setup_console(int t)
 {
 	struct termios our_termios;
@@ -210,7 +227,7 @@ int show_image(char *filename)
 	int c, ret;
 	int x_size, y_size, screen_width, screen_height;
 	int x_pan, y_pan, x_offs, y_offs, refresh = 1;
-	int delay = opt_delay, retransform = 1;
+	int delay = opt_delay, retransform = 1, noshow = 0;
 
 	int transform_shrink = opt_shrink, transform_enlarge = opt_enlarge;
 	int transform_cal = (opt_shrink == 2), transform_iaspect = opt_ignore_aspect;
@@ -302,10 +319,12 @@ identified:
 				printf("\033[H\033[J");
 				fflush(stdout);
 			}
-			if(opt_image_info)
+			if(opt_image_info) {
 				printf("fbv - The Framebuffer Viewer\n%s\n%d x %d\n", filename, x_size, y_size);
+				printf("\n%s", inline_help);
+			}
 		}
-		if(refresh)
+		if(refresh && !noshow)
 		{
 			if(i.width < screen_width)
 				x_offs = (screen_width - i.width) / 2;
@@ -339,6 +358,8 @@ identified:
 		}
 
 		c = getchar();
+		if (c == -1)
+			c = 'r';
 		switch(c)
 		{
 			case EOF:
@@ -413,6 +434,8 @@ identified:
 				transform_iaspect = 0;
 				transform_enlarge = 0;
 				transform_shrink = 0;
+				transform_widthonly = 0;
+				transform_heightonly = 0;
 				retransform = 1;
 				break;
 			case 'n':
@@ -426,6 +449,14 @@ identified:
 				if(transform_rotation > 3)
 					transform_rotation -= 4;
 				retransform = 1;
+				break;
+			case 'h': case '\033':
+				if(c == '\033' && !noshow)
+					break;
+				if(!opt_image_info)
+					break;
+				retransform = 1;
+				noshow = !noshow;
 				break;
 		}
 	}// while(1)
@@ -478,6 +509,7 @@ void help(char *name)
 		   " n          : Rotate the image 90 degrees left\n"
 		   " m          : Rotate the image 90 degrees right\n"
 		   " p          : Disable all transformations\n"
+		   " h		: Help and image information\n"
 		   " Copyright (C) 2000 - 2004 Mateusz Golicz, Tomasz Sterna.\n"
 		   " Copyright (C) 2013 yanlin, godspeed1989@gitbub\n", name);
 }
@@ -575,6 +607,8 @@ int main(int argc, char **argv)
 	signal(SIGSEGV, sighandler);
 	signal(SIGTERM, sighandler);
 	signal(SIGABRT, sighandler);
+
+	vt_setup();
 
 	if(opt_hide_cursor)
 	{
