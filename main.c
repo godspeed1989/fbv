@@ -38,6 +38,7 @@ static char inline_help[] =
 	"l		Toggle fitting the image horizontally\n"
 	"t		Toggle fitting the image vertically\n"
 	"i		Toggle respecting the image aspect on/off\n"
+	"+, -, 0	Increase, decrease and reset zoom\n"
 	"n		Rotate the image 90 degrees left\n"
 	"m		Rotate the image 90 degrees right\n"
 	"p		Disable all transformations\n"
@@ -234,6 +235,8 @@ int show_image(char *filename)
 	int transform_rotation = 0;
 	int transform_widthonly = opt_widthonly, transform_heightonly = opt_heightonly;
 
+	double zoom = 1;
+
 	struct image i;
 
 #ifdef FBV_SUPPORT_PNG
@@ -305,6 +308,11 @@ identified:
 
 			if(transform_rotation)
 				do_rotate(&i, transform_rotation);
+
+			if(zoom > 1)
+				do_fit_to_screen(&i, x_size / zoom, y_size / zoom, 0, 0, 0, 0);
+			if(zoom < 1)
+				do_enlarge(&i, x_size / zoom, y_size / zoom, 0, 0, 0);
 
 			if(transform_shrink)
 				do_fit_to_screen(&i, screen_width, screen_height, transform_iaspect, transform_widthonly, transform_heightonly, transform_cal);
@@ -429,6 +437,18 @@ identified:
 				transform_iaspect = !transform_iaspect;
 				retransform = 1;
 				break;
+			case '0':
+			case '+':
+			case '-':
+				transform_cal = 0;
+				transform_iaspect = 0;
+				transform_enlarge = 0;
+				transform_shrink = 0;
+				transform_widthonly = 0;
+				transform_heightonly = 0;
+				zoom = c == '0' ? 1 : c == '+' ? zoom / 1.5 : zoom * 1.5;
+				retransform = 1;
+				break;
 			case 'p':
 				transform_cal = 0;
 				transform_iaspect = 0;
@@ -436,6 +456,7 @@ identified:
 				transform_shrink = 0;
 				transform_widthonly = 0;
 				transform_heightonly = 0;
+				zoom = 1;
 				retransform = 1;
 				break;
 			case 'n':
@@ -506,10 +527,11 @@ void help(char *name)
 		   " l          : Toggle fitting the image horizontally\n"
 		   " t          : Toggle fitting the image vertically\n"
 		   " i          : Toggle respecting the image aspect on/off\n"
+		   " +, -, 0    : Increase, decrease and reset zoom\n"
 		   " n          : Rotate the image 90 degrees left\n"
 		   " m          : Rotate the image 90 degrees right\n"
 		   " p          : Disable all transformations\n"
-		   " h		: Help and image information\n"
+		   " h          : Help and image information\n"
 		   " Copyright (C) 2000 - 2004 Mateusz Golicz, Tomasz Sterna.\n"
 		   " Copyright (C) 2013 yanlin, godspeed1989@gitbub\n", name);
 }
