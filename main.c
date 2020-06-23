@@ -26,6 +26,14 @@ static int opt_delay = 0;
 static int opt_enlarge = 0;
 static int opt_ignore_aspect = 0;
 
+static char inline_status[] =
+	"\nviewer status:\n"
+	"%cshrink(f)%c          %cquality shrin(k)%c    %c(e)nlarge%c\n"
+	"%chorizonta(l)_fit%c   %cver(t)ical_fit%c      %caspect(i)%c\n"
+	" zoom:%g\n";
+static char opener[2] = {' ', '['};
+static char closer[2] = {' ', ']'};
+
 static char inline_help[] =
 	"keys:\n"
 	"r		Redraw the image\n"
@@ -38,7 +46,7 @@ static char inline_help[] =
 	"l		Toggle fitting the image horizontally\n"
 	"t		Toggle fitting the image vertically\n"
 	"i		Toggle respecting the image aspect on/off\n"
-	"+, -, 0	Increase, decrease and reset zoom\n"
+	"+, -, 0		Increase, decrease and reset zoom\n"
 	"n		Rotate the image 90 degrees left\n"
 	"m		Rotate the image 90 degrees right\n"
 	"p		Disable all transformations\n"
@@ -329,6 +337,21 @@ identified:
 			}
 			if(opt_image_info) {
 				printf("fbv - The Framebuffer Viewer\n%s\n%d x %d\n", filename, x_size, y_size);
+				printf(inline_status,
+					opener[transform_shrink],
+					closer[transform_shrink],
+					opener[transform_cal],
+					closer[transform_cal],
+					opener[transform_enlarge],
+					closer[transform_enlarge],
+					opener[transform_widthonly],
+					closer[transform_widthonly],
+					opener[transform_heightonly],
+					closer[transform_heightonly],
+					opener[transform_iaspect],
+					closer[transform_iaspect],
+					1 / zoom
+				);
 				printf("\n%s", inline_help);
 			}
 		}
