@@ -25,6 +25,7 @@ static int opt_heightonly = 0;
 static int opt_delay = 0;
 static int opt_enlarge = 0;
 static int opt_ignore_aspect = 0;
+static char *imagename = NULL;
 
 static char inline_status[] =
 	"\nviewer status:\n"
@@ -336,7 +337,9 @@ identified:
 				fflush(stdout);
 			}
 			if(opt_image_info) {
-				printf("fbv - The Framebuffer Viewer\n%s\n%d x %d\n", filename, x_size, y_size);
+				printf("fbv - The Framebuffer Viewer\n");
+				printf("%s\n", imagename ? imagename : filename);
+				printf("%d x %d\n", x_size, y_size);
 				printf(inline_status,
 					opener[transform_shrink],
 					closer[transform_shrink],
@@ -539,6 +542,7 @@ void help(char *name)
 		   "  -t, --heightonly    Fit the image vertically\n"
 		   "  -r, --ignore-aspect Ignore the image aspect while resizing\n"
 		   "  -s <delay>, --delay <d>  Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
+		   "  -n imagename(s)     Image name(s) shown in help"
 		   "Input keys:\n"
 		   " r          : Redraw the image\n"
 		   " < or ,     : Previous image\n"
@@ -586,9 +590,12 @@ int main(int argc, char **argv)
 		{"widthonly",     no_argument,  0, 'l'},
 		{"heightonly",    no_argument,  0, 't'},
 		{"ignore-aspect", no_argument,  0, 'r'},
+		{"imagename",     required_argument, 0, 'n'},
 		{0, 0, 0, 0}
 	};
 	int c, i;
+	char *nameopts = NULL;
+	char **namestarts = NULL;
 
 	if(argc < 2)
 	{
@@ -597,7 +604,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	while((c = getopt_long_only(argc, argv, "hcauifks:eltr", long_options, NULL)) != EOF)
+	while((c = getopt_long_only(argc, argv, "hn:cauifks:eltr", long_options, NULL)) != EOF)
 	{
 		switch(c)
 		{
@@ -612,6 +619,9 @@ int main(int argc, char **argv)
 				break;
 			case 'u':
 				opt_hide_cursor = 0;
+				break;
+			case 'n':
+				nameopts = optarg;
 				break;
 			case 'h':
 				help(argv[0]);
@@ -646,6 +656,18 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	namestarts = (char **) malloc((argc - optind) * sizeof(char *));
+	for (i = 0; i < argc - optind; i++) {
+		namestarts[i] = nameopts;
+		if (nameopts == NULL)
+			continue;
+		nameopts = strchr(nameopts, ':');
+		if (nameopts == NULL)
+			continue;
+		*nameopts = '\0';
+		nameopts++;
+	}
+
 	signal(SIGHUP, sighandler);
 	signal(SIGINT, sighandler);
 	signal(SIGQUIT, sighandler);
@@ -666,6 +688,7 @@ int main(int argc, char **argv)
 	i = optind;
 	while(argv[i])
 	{
+		imagename = namestarts[i - optind];
 		int r = show_image(argv[i]);
 		if(r == 0)
 			break;
