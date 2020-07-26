@@ -662,7 +662,7 @@ int main(int argc, char **argv)
 			namestarts[i] = nameopts;
 			if (nameopts == NULL)
 				continue;
-			nameopts = strchr(nameopts, ':');
+			nameopts = strchr(nameopts, '^');
 			if (nameopts == NULL)
 				continue;
 			*nameopts = '\0';
