@@ -656,16 +656,18 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	namestarts = (char **) malloc((argc - optind) * sizeof(char *));
-	for (i = 0; i < argc - optind; i++) {
-		namestarts[i] = nameopts;
-		if (nameopts == NULL)
-			continue;
-		nameopts = strchr(nameopts, ':');
-		if (nameopts == NULL)
-			continue;
-		*nameopts = '\0';
-		nameopts++;
+	if (argc - optind > 1) {
+		namestarts = (char **) malloc((argc - optind) * sizeof(char *));
+		for (i = 0; i < argc - optind; i++) {
+			namestarts[i] = nameopts;
+			if (nameopts == NULL)
+				continue;
+			nameopts = strchr(nameopts, '^');
+			if (nameopts == NULL)
+				continue;
+			*nameopts = '\0';
+			nameopts++;
+		}
 	}
 
 	signal(SIGHUP, sighandler);
@@ -688,7 +690,8 @@ int main(int argc, char **argv)
 	i = optind;
 	while(argv[i])
 	{
-		imagename = namestarts[i - optind];
+		imagename = (argc - optind == 1) ?
+			 nameopts : namestarts[i - optind];
 		int r = show_image(argv[i]);
 		if(r == 0)
 			break;
