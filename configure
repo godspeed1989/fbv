@@ -77,6 +77,7 @@ while true ; do
 	esac
 done
 
+[ -z "$CC" ] && CC=cc
 [ -z "$prefix" ] && prefix="/usr/local"
 [ -z "$bindir" ] && bindir="${prefix}/bin"
 [ -z "$mandir" ] && mandir="${prefix}/man"
@@ -101,7 +102,7 @@ EOF
 echo -n "checking for libjpeg presence... "
 if [ "$jpeg" != "disabled" ]; then
 jpeg="no"
-cc 2>>./config.log >>./config.log -o \$\$~test \$\$~test.c -ljpeg $libs
+$CC 2>>./config.log >>./config.log -o \$\$~test \$\$~test.c -ljpeg $libs
 if [ -e \$\$~test ]; then
 	libs="-ljpeg $libs" ; jpeg="yes"
 fi
@@ -112,7 +113,7 @@ echo "libjpeg: $jpeg" >> ./config.log
 echo -n "checking for libpng presence... "
 if [ "$png" != "disabled" ]; then
 png="no"
-cc 2>>./config.log >>./config.log -o \$\$~test \$\$~test.c -lpng $libs
+$CC 2>>./config.log >>./config.log -o \$\$~test \$\$~test.c -lpng $libs
 if [ -e \$\$~test ]; then
 	libs="-lpng $libs" ; png="yes"
 fi
