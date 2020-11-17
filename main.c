@@ -8,6 +8,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <getopt.h>
 #include <termios.h>
 #include <signal.h>
@@ -58,20 +59,27 @@ void setup_console(int t)
 	struct termios our_termios;
 	static struct termios old_termios;
 
-	if(t)
+	if (isatty(fileno(stdout)))
 	{
-		printf("setup console\n");
-		tcgetattr(0, &old_termios);
-		memcpy(&our_termios, &old_termios, sizeof(struct termios));
-		our_termios.c_lflag &= !(ECHO | ICANON);
-		tcsetattr(0, TCSANOW, &our_termios);
+		if(t)
+		{
+			printf("setup console\n");
+			tcgetattr(0, &old_termios);
+			memcpy(&our_termios, &old_termios, sizeof(struct termios));
+			our_termios.c_lflag &= !(ECHO | ICANON);
+			tcsetattr(0, TCSANOW, &our_termios);
+		}
+		else
+		{
+			//printf("restore console\n");
+			tcsetattr(0, TCSANOW, &old_termios);
+		}
 	}
 	else
 	{
-      //printf("restore console\n");
-		tcsetattr(0, TCSANOW, &old_termios);
+		printf("stdout is not connected to a terminal\n");
 	}
-}
+ }
 
 static inline void do_rotate(struct image *i, int rot)
 {
