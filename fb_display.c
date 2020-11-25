@@ -73,6 +73,19 @@ int fb_display(unsigned char *rgbbuff, unsigned char * alpha,
 	if(x_offs + x_size > x_stride) x_offs = 0;
 	if(y_offs + y_size > var.yres) y_offs = 0;
 
+	/* Check if not whole screen is covered */
+	if(x_offs || y_offs)
+	{
+		unsigned char *fb;
+		int i;
+		fb = (unsigned char*)mmap(NULL, fix.line_length * var.yres_virtual, PROT_WRITE | PROT_READ, MAP_SHARED, fh, 0);
+
+		for(i = 0; i <  fix.line_length * var.yres_virtual; i++)
+		{
+			fb[i]=0;
+		}
+	}
+
 	/* blit buffer 2 fb */
 	fbbuff = (unsigned char*)convertRGB2FB(fh, rgbbuff, x_size * y_size, var.bits_per_pixel, &bp);
 #if 0
