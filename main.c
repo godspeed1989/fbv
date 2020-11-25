@@ -387,7 +387,9 @@ identified:
 					closer[transform_iaspect],
 					1 / zoom
 				);
-				printf("\n%s", inline_help);
+
+				if (isatty(fileno(stdout)))
+					printf("\n%s", inline_help);
 			}
 		}
 		if(refresh && !noshow)
@@ -408,135 +410,151 @@ identified:
 		}
 		if(delay)
 		{
-			struct timeval tv;
-			fd_set fds;
-			tv.tv_sec = delay / 10;
-			tv.tv_usec = (delay % 10) * 100000;
-			FD_ZERO(&fds);
-			FD_SET(0, &fds);
-
-			if(select(1, &fds, NULL, NULL, &tv) <= 0)
+			if (isatty(fileno(stdin)))
 			{
+				struct timeval tv;
+				fd_set fds;
+				tv.tv_sec = delay / 10;
+				tv.tv_usec = (delay % 10) * 100000;
+				FD_ZERO(&fds);
+				FD_SET(0, &fds);
+				if(select(1, &fds, NULL, NULL, &tv) <= 0)
+					{
+						ret = 1;
+						break;
+					}
+				delay = 0;
+			}
+			else {
+				usleep(delay*100);
 				ret = 1;
 				break;
 			}
-			delay = 0;
 		}
 
-		c = getchar();
-		if (c == -1)
-			c = 'r';
-		switch(c)
+		if (isatty(fileno(stdin)))
 		{
-			case EOF:
-			case 'q':
-				ret = 0;
-				goto done;
-			case ' ': case 10: case 13:
-				goto done;
-			case '>': case '.':
-				ret = 1;
-				goto done;
-			case '<': case ',':
-				ret = -1;
-				goto done;
-			case 'r':
-				refresh = 1;
-				break;
-			case 'a': case 'D':
-				if(x_pan == 0) break;
-				x_pan -= i.width / PAN_STEPPING;
-				if(x_pan < 0) x_pan = 0;
-				refresh = 1;
-				break;
-			case 'd': case 'C':
-				if(x_offs) break;
-				if(x_pan >= (i.width - screen_width)) break;
-				x_pan += i.width / PAN_STEPPING;
-				if(x_pan > (i.width - screen_width)) x_pan = i.width - screen_width;
-				refresh = 1;
-				break;
-			case 'w': case 'A':
-				if(y_pan == 0) break;
-				y_pan -= i.height / PAN_STEPPING;
-				if(y_pan < 0) y_pan = 0;
-				refresh = 1;
-				break;
-			case 'x': case 'B':
-				if(y_offs) break;
-				if(y_pan >= (i.height - screen_height)) break;
-				y_pan += i.height / PAN_STEPPING;
-				if(y_pan > (i.height - screen_height)) y_pan = i.height - screen_height;
-				refresh = 1;
-				break;
-			case 'f':
-				transform_shrink = !transform_shrink;
-				retransform = 1;
-				break;
-			case 'e':
-				transform_enlarge = !transform_enlarge;
-				retransform = 1;
-				break;
-			case 'l':
-				transform_widthonly = !transform_widthonly;
-				transform_heightonly = 0;
-				retransform = 1;
-				break;
-			case 't':
-				transform_widthonly = 0;
-				transform_heightonly = !transform_heightonly;
-				retransform = 1;
-				break;
-			case 'k':
-				transform_cal = !transform_cal;
-				retransform = 1;
-				break;
-			case 'i':
-				transform_iaspect = !transform_iaspect;
-				retransform = 1;
-				break;
-			case '0':
-			case '+':
-			case '-':
-				transform_cal = 0;
-				transform_iaspect = 0;
-				transform_enlarge = 0;
-				transform_shrink = 0;
-				transform_widthonly = 0;
-				transform_heightonly = 0;
-				zoom = c == '0' ? 1 : c == '+' ? zoom / 1.5 : zoom * 1.5;
-				retransform = 1;
-				break;
-			case 'p':
-				transform_cal = 0;
-				transform_iaspect = 0;
-				transform_enlarge = 0;
-				transform_shrink = 0;
-				transform_widthonly = 0;
-				transform_heightonly = 0;
-				zoom = 1;
-				retransform = 1;
-				break;
-			case 'n':
-				transform_rotation -= 1;
-				if(transform_rotation < 0)
-					transform_rotation += 4;
-				retransform = 1;
-				break;
-			case 'm':
-				transform_rotation += 1;
-				if(transform_rotation > 3)
-					transform_rotation -= 4;
-				retransform = 1;
-				break;
-			case 'h': case '\033':
-				if(c == '\033' && !noshow)
+			c = getchar();
+			if (c == -1)
+				c = 'r';
+			switch(c)
+			{
+				case EOF:
+				case 'q':
+					ret = 0;
+					goto done;
+				case ' ': case 10: case 13:
+					goto done;
+				case '>': case '.':
+					ret = 1;
+					goto done;
+				case '<': case ',':
+					ret = -1;
+					goto done;
+				case 'r':
+					refresh = 1;
 					break;
-				if(!opt_image_info)
+				case 'a': case 'D':
+					if(x_pan == 0) break;
+					x_pan -= i.width / PAN_STEPPING;
+					if(x_pan < 0) x_pan = 0;
+					refresh = 1;
 					break;
-				retransform = 1;
-				noshow = !noshow;
-				break;
+				case 'd': case 'C':
+					if(x_offs) break;
+					if(x_pan >= (i.width - screen_width)) break;
+					x_pan += i.width / PAN_STEPPING;
+					if(x_pan > (i.width - screen_width)) x_pan = i.width - screen_width;
+					refresh = 1;
+					break;
+				case 'w': case 'A':
+					if(y_pan == 0) break;
+					y_pan -= i.height / PAN_STEPPING;
+					if(y_pan < 0) y_pan = 0;
+					refresh = 1;
+					break;
+				case 'x': case 'B':
+					if(y_offs) break;
+					if(y_pan >= (i.height - screen_height)) break;
+					y_pan += i.height / PAN_STEPPING;
+					if(y_pan > (i.height - screen_height)) y_pan = i.height - screen_height;
+					refresh = 1;
+					break;
+				case 'f':
+					transform_shrink = !transform_shrink;
+					retransform = 1;
+					break;
+				case 'e':
+					transform_enlarge = !transform_enlarge;
+					retransform = 1;
+					break;
+				case 'l':
+					transform_widthonly = !transform_widthonly;
+					transform_heightonly = 0;
+					retransform = 1;
+					break;
+				case 't':
+					transform_widthonly = 0;
+					transform_heightonly = !transform_heightonly;
+					retransform = 1;
+					break;
+				case 'k':
+					transform_cal = !transform_cal;
+					retransform = 1;
+					break;
+				case 'i':
+					transform_iaspect = !transform_iaspect;
+					retransform = 1;
+					break;
+				case '0':
+				case '+':
+				case '-':
+					transform_cal = 0;
+					transform_iaspect = 0;
+					transform_enlarge = 0;
+					transform_shrink = 0;
+					transform_widthonly = 0;
+					transform_heightonly = 0;
+					zoom = c == '0' ? 1 : c == '+' ? zoom / 1.5 : zoom * 1.5;
+					retransform = 1;
+					break;
+				case 'p':
+					transform_cal = 0;
+					transform_iaspect = 0;
+					transform_enlarge = 0;
+					transform_shrink = 0;
+					transform_widthonly = 0;
+					transform_heightonly = 0;
+					zoom = 1;
+					retransform = 1;
+					break;
+				case 'n':
+					transform_rotation -= 1;
+					if(transform_rotation < 0)
+						transform_rotation += 4;
+					retransform = 1;
+					break;
+				case 'm':
+					transform_rotation += 1;
+					if(transform_rotation > 3)
+						transform_rotation -= 4;
+					retransform = 1;
+					break;
+				case 'h': case '\033':
+					if(c == '\033' && !noshow)
+						break;
+					if(!opt_image_info)
+						break;
+					retransform = 1;
+					noshow = !noshow;
+					break;
+			}
+		}
+		else
+		{
+			// Non-interactive, exit immediately
+			ret = 1;
+			break;
 		}
 	}// while(1)
 
