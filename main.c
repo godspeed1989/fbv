@@ -23,7 +23,7 @@ static int opt_image_info = 1;
 static int opt_shrink = 0;
 static int opt_widthonly = 0;
 static int opt_heightonly = 0;
-static int opt_fullscreen = 0;
+static int opt_smartfit = -1;
 static int opt_delay = 0;
 static int opt_enlarge = 0;
 static int opt_ignore_aspect = 0;
@@ -310,7 +310,7 @@ identified:
 		goto error;
 	i.do_free = 0;
 
-	if (opt_fullscreen)
+	if (opt_smartfit>=0)
 	{
 		transform_shrink = 1;
 		transform_enlarge = 1;
@@ -319,13 +319,19 @@ identified:
 		// screen_width/screen_height > x_size/y_size
 		if (screen_width*y_size > x_size*screen_height)
 		{
-			 transform_widthonly = 1;
-			 transform_heightonly = 0;
+			if (opt_smartfit>100-100*x_size*screen_height/(y_size*screen_width))
+			{
+				transform_widthonly = 1;
+				transform_heightonly = 0;
+			}
 		}
 		else
 		{
-			 transform_widthonly = 0;
-			 transform_heightonly = 1;
+			if (opt_smartfit>100-100*y_size*screen_width/(x_size*screen_height))
+			{
+				transform_widthonly = 0;
+				transform_heightonly = 1;
+			}
 		}
 	}
 
@@ -590,7 +596,7 @@ void help(char *name)
 		   "  -e, --enlarge       Enlarge the image to fit the whole screen if necessary\n"
 		   "  -l, --widthonly     Fit the image horizontally\n"
 		   "  -t, --heightonly    Fit the image vertically\n"
-		   "  -x, --fullscreen    Show image by covering the whole screen. Parts might be out of screen area\n"
+		   "  -x <percent>, --smartfit <percent>  Show image by covering the whole screen if less than <percent>\% is out of screen\n"
 		   "  -r, --ignore-aspect Ignore the image aspect while resizing\n"
 		   "  -s <delay>, --delay <d>  Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
 		   "  -n imagename(s)     Image name(s) shown in help"
@@ -640,7 +646,7 @@ int main(int argc, char **argv)
 		{"enlarge",       no_argument,  0, 'e'},
 		{"widthonly",     no_argument,  0, 'l'},
 		{"heightonly",    no_argument,  0, 't'},
-		{"fullscreen",    no_argument,  0, 'x'},
+		{"smartfit",     required_argument,  0, 'x'},
 		{"ignore-aspect", no_argument,  0, 'r'},
 		{"imagename",     required_argument, 0, 'n'},
 		{0, 0, 0, 0}
@@ -697,7 +703,7 @@ int main(int argc, char **argv)
 				opt_heightonly = 1;
 				break;
 			case 'x':
-				opt_fullscreen = 1;
+				opt_smartfit = atoi(optarg);
 				break;
 			case 'r':
 				opt_ignore_aspect = 1;
