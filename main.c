@@ -368,6 +368,19 @@ identified:
 				do_enlarge(&i, screen_width, screen_height, transform_iaspect, transform_widthonly, transform_heightonly);
 
 			x_pan = y_pan = 0;
+			if (opt_smartfit>=0)
+			{
+				if (i.width>screen_width)
+				{
+					x_pan = (i.width-screen_width)/2;
+				}
+
+				if (i.height>screen_height)
+				{
+					y_pan = (i.height-screen_height)/2;
+				}
+			}
+
 			refresh = 1; retransform = 0;
 			if(opt_clear)
 			{
