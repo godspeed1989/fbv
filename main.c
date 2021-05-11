@@ -27,6 +27,8 @@ static int opt_smartfit = -1;
 static int opt_delay = 0;
 static int opt_enlarge = 0;
 static int opt_ignore_aspect = 0;
+static int opt_orientation = 0;
+static int opt_skip_tty = 0;
 static char *imagename = NULL;
 
 static char inline_status[] =
@@ -335,7 +337,10 @@ identified:
 		}
 	}
 
-
+	if(opt_orientation)
+	{
+		transform_rotation = opt_orientation;
+	}
 
 
 	while(1)
@@ -451,7 +456,7 @@ identified:
 			}
 		}
 
-		if (isatty(fileno(stdin)))
+		if (isatty(fileno(stdin)) && !opt_skip_tty)
 		{
 			c = getchar();
 			if (c == -1)
@@ -613,6 +618,8 @@ void help(char *name)
 		   "  -r, --ignore-aspect Ignore the image aspect while resizing\n"
 		   "  -s <delay>, --delay <d>  Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
 		   "  -n imagename(s)     Image name(s) shown in help"
+		   "  -o <mode>, --orientation <mode>  Show image in specific orientation (0 = no rotation, 1 = 90° rotation, 2 = 180° rotation, 3 = 270° rotation)\n"
+		   "  -y, --skiptty		  Shows the image only once and skips tty input mode.\n"
 		   "Input keys:\n"
 		   " r          : Redraw the image\n"
 		   " < or ,     : Previous image\n"
@@ -661,6 +668,8 @@ int main(int argc, char **argv)
 		{"heightonly",    no_argument,  0, 't'},
 		{"smartfit",     required_argument,  0, 'x'},
 		{"ignore-aspect", no_argument,  0, 'r'},
+		{"orientation",		  required_argument,  0, 'o'},
+		{"skiptty",		  required_argument,  0, 'y'},
 		{"imagename",     required_argument, 0, 'n'},
 		{0, 0, 0, 0}
 	};
@@ -675,7 +684,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	while((c = getopt_long_only(argc, argv, "hn:cauifks:eltxr", long_options, NULL)) != EOF)
+	while((c = getopt_long_only(argc, argv, "hn:cauifks:eltxro:y", long_options, NULL)) != EOF)
 	{
 		switch(c)
 		{
@@ -720,6 +729,12 @@ int main(int argc, char **argv)
 				break;
 			case 'r':
 				opt_ignore_aspect = 1;
+				break;
+			case 'o':
+				opt_orientation = atoi(optarg);
+				break;
+			case 'y':
+				opt_skip_tty = 1;
 				break;
 		}
 	}
@@ -781,6 +796,10 @@ int main(int argc, char **argv)
 		printf("\033[?25h");
 		fflush(stdout);
 	}
+
+	if(opt_orientation && (opt_orientation > 3 || opt_orientation < 0))
+		opt_orientation = 0;
+
 	return 0;
 }
 
