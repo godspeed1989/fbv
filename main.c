@@ -617,7 +617,7 @@ void help(char *name)
 		   "  -x <percent>, --smartfit <percent>  Show image by covering the whole screen if less than <percent>\% is out of screen\n"
 		   "  -r, --ignore-aspect Ignore the image aspect while resizing\n"
 		   "  -s <delay>, --delay <d>  Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
-		   "  -n imagename(s)     Image name(s) shown in help"
+		   "  -n imagename(s)     Image name(s) shown in help\n"
 		   "  -o <mode>, --orientation <mode>  Show image in specific orientation (0 = no rotation, 1 = 90° rotation, 2 = 180° rotation, 3 = 270° rotation)\n"
 		   "  -y, --skiptty		  Shows the image only once and skips tty input mode.\n"
 		   "Input keys:\n"
