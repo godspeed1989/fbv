@@ -614,7 +614,7 @@ void help(char *name)
 		   "  -e, --enlarge       Enlarge the image to fit the whole screen if necessary\n"
 		   "  -l, --widthonly     Fit the image horizontally\n"
 		   "  -t, --heightonly    Fit the image vertically\n"
-		   "  -x <percent>, --smartfit <percent>  Show image by covering the whole screen if less than <percent>\% is out of screen\n"
+		   "  -x <percent>, --smartfit <percent>  Show image by covering the whole screen if less than <percent>%% is out of screen\n"
 		   "  -r, --ignore-aspect Ignore the image aspect while resizing\n"
 		   "  -s <delay>, --delay <d>  Slideshow, 'delay' is the slideshow delay in tenths of seconds.\n\n"
 		   "  -n imagename(s)     Image name(s) shown in help\n"
