@@ -5,8 +5,8 @@
 
 include Make.conf
 
-CC = g++ 
-CFLAGS = -Wall -D_GNU_SOURCE
+CC ?= g++
+CFLAGS ?= -Wall -D_GNU_SOURCE
 
 SOURCES	= main.c jpeg.c png.c bmp.c fb_display.c vt.c transforms.c
 OBJECTS	= ${SOURCES:.c=.o}
